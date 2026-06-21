@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>CNU AI Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+:root {
+  --primary: #024ad8;
+  --primary-bright: #296ef9;
+  --primary-deep: #0e3191;
+  --primary-soft: #c9e0fc;
+  --kyeongs-color: #0053b8;
+  --canvas: #ffffff;
+  --cloud: #f7f7f7;
+  --fog: #e8e8e8;
+  --steel: #c2c2c2;
+  --hairline: #e8e8e8;
+  --bloom-coral: #ff5050;
+  --bloom-deep: #b3262b;
+  --storm-deep: #356373;
+  --storm-sea: #7fadbe;
+  --ink: #1a1a1a;
+  --on-ink: #ffffff;
+  --graphite: #636363;
+  --on-primary: #ffffff;
+  --r-xs: 2px; --r-sm: 3px; --r-md: 4px; --r-lg: 8px; --r-xl: 16px;
+  --shadow-soft-lift: 0 2px 8px rgba(26, 26, 26, 0.08);
+  --font: 'Pretendard Variable', 'Inter', -apple-system, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  height: 100vh;
+  display: flex; flex-direction: column;
+  background: var(--canvas);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────── 로그인 화면 ─────── */
+.login-screen {
+  position: fixed; inset: 0;
+  background: var(--cloud);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.login-box {
+  width: 380px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  padding: 40px 36px;
+  box-shadow: var(--shadow-soft-lift);
+}
+.login-title {
+  font-size: 24px; font-weight: 600;
+  letter-spacing: -0.4px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.login-sub {
+  font-size: 13px;
+  color: var(--graphite);
+  margin-bottom: 28px;
+}
+.field {
+  margin-bottom: 14px;
+}
+.field label {
+  display: block;
+  font-size: 12px; font-weight: 500;
+  color: var(--graphite);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+.field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--steel);
+  border-radius: var(--r-md);
+  font-family: var(--font);
+  font-size: 14px;
+  outline: none;
+  color: var(--ink);
+  transition: border-color 0.15s;
+}
+.field input:focus { border-color: var(--ink); }
+.field-help {
+  font-size: 11px;
+  color: var(--graphite);
+  margin-top: 4px;
+}
+.divider {
+  height: 1px;
+  background: var(--hairline);
+  margin: 20px 0;
+}
+.divider-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--graphite);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--kyeongs-color);
+  color: var(--on-primary);
+  border: none;
+  border-radius: var(--r-md);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.15s;
+}
+.login-btn:hover { background: var(--primary-bright); }
+.login-btn:disabled { background: var(--steel); cursor: not-allowed; }
+.login-link {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  color: var(--primary);
+  margin-top: 14px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.login-link:hover { text-decoration: underline; }
+.login-error {
+  background: #fee;
+  border: 1px solid var(--bloom-coral);
+  color: var(--bloom-deep);
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  margin-bottom: 14px;
+  display: none;
+}
+
+/* ─────── 메인 UI ─────── */
+.topbar {
+  background: var(--kyeongs-color);
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 16px;
+  height: 64px;
+  flex-shrink: 0;
+}
+.logo {
+  width: 40px; height: 40px;
+  background: var(--canvas);
+  border-radius: var(--r-lg);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+  padding: 5px;
+}
+.logo img { width: 100%; height: 100%; object-fit: contain; }
+.brand { display: flex; align-items: baseline; gap: 12px; }
+.brand .univ {
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.2px;
+  color: var(--on-primary);
+  line-height: 1.0;
+}
+.brand .app {
+  font-size: 11px; font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+.topbar .spacer { flex: 1; }
+.topbar .user {
+  font-size: 14px; color: var(--on-primary); font-weight: 400;
+}
+.topbar .logout {
+  font-size: 14px; color: var(--on-primary); font-weight: 500;
+  cursor: pointer; margin-left: 24px;
+  padding: 8px 0;
+  opacity: 0.88;
+}
+.topbar .logout:hover { opacity: 1; }
+
+.subheader {
+  background: var(--canvas);
+  padding: 12px 32px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12px;
+  color: var(--graphite);
+  font-weight: 600;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  padding: 24px;
+  gap: 24px;
+  background: var(--cloud);
+}
+.panel {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--hairline);
+  display: flex; align-items: center; gap: 10px;
+  font-size: 16px; font-weight: 500;
+  color: var(--ink);
+  background: var(--canvas);
+  height: 56px;
+  flex-shrink: 0;
+}
+.panel-header .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--primary);
+}
+.panel-header .dot.off { background: var(--steel); }
+.panel-header .dot.live { animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.left-panel { width: 460px; flex-shrink: 0; }
+.right-panel { flex: 1; }
+
+.chat {
+  flex: 1; overflow-y: auto;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.user-msg {
+  align-self: flex-end;
+  background: var(--ink);
+  color: var(--on-ink);
+  padding: 12px 18px;
+  border-radius: var(--r-xl) var(--r-xl) var(--r-md) var(--r-xl);
+  max-width: 82%;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.status-msg {
+  color: var(--graphite);
+  font-size: 13px;
+  padding: 4px 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.status-msg::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--primary); flex-shrink: 0;
+}
+.status-msg.error::before { background: var(--bloom-coral); }
+.status-msg.error { color: var(--bloom-deep); }
+
+.typing { padding: 10px 18px; display: flex; gap: 5px; }
+.typing span {
+  width: 6px; height: 6px;
+  background: var(--ink); border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%,80%,100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-4px); }
+}
+
+.welcome { padding: 4px 2px 16px; }
+.welcome-title {
+  font-size: 32px; font-weight: 500;
+  letter-spacing: -0.4px;
+  color: var(--ink);
+  line-height: 1.05;
+  margin-bottom: 12px;
+  margin-top: 8px;
+}
+.welcome-sub {
+  font-size: 15px;
+  color: var(--graphite);
+  margin-bottom: 24px;
+}
+
+.system-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.system-card {
+  padding: 18px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-soft-lift);
+  display: flex; flex-direction: column;
+  min-height: 142px;
+}
+.sys-eyebrow {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+.sys-name {
+  font-size: 17px; font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.sys-examples { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
+.ex-chip {
+  font-size: 12px;
+  padding: 8px 12px;
+  background: var(--cloud);
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 500;
+  text-align: left;
+  font-family: var(--font);
+}
+.ex-chip:hover {
+  background: var(--primary-soft);
+  color: var(--primary-deep);
+}
+
+.card {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-soft-lift);
+  padding: 20px 22px;
+  font-size: 14px;
+}
+.card-title {
+  font-size: 18px; font-weight: 500;
+  margin-bottom: 14px;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-footer {
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  font-size: 12px; color: var(--graphite); line-height: 1.55;
+}
+
+.assignment-item {
+  display: flex; align-items: center;
+  padding: 12px 14px;
+  border-left: 3px solid var(--steel);
+  background: var(--cloud);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin-bottom: 8px; gap: 10px;
+}
+.assignment-item.urgency-red { border-left-color: var(--bloom-coral); }
+.assignment-item.urgency-orange { border-left-color: var(--storm-deep); }
+.assignment-item.urgency-green { border-left-color: var(--steel); }
+.assignment-item .info { flex: 1; }
+.assignment-item .title { font-weight: 500; font-size: 14px; color: var(--ink); }
+.assignment-item .meta { font-size: 12px; color: var(--graphite); margin-top: 3px; }
+.assignment-item .meta.urgent { color: var(--bloom-deep); font-weight: 700; }
+.submit-btn {
+  background: var(--primary-bright); color: var(--on-primary);
+  border: none;
+  padding: 8px 14px; border-radius: var(--r-md);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  font-family: var(--font);
+}
+
+.notice-item {
+  padding: 14px 16px;
+  background: var(--cloud);
+  border-radius: var(--r-lg);
+  margin-bottom: 10px;
+}
+.notice-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.notice-title { font-weight: 500; font-size: 14px; flex: 1; line-height: 1.4; color: var(--ink); }
+.notice-badge {
+  font-size: 11px; padding: 3px 8px;
+  border-radius: var(--r-xs);
+  background: var(--bloom-coral); color: var(--on-primary);
+  white-space: nowrap; flex-shrink: 0; font-weight: 700;
+  text-transform: uppercase;
+}
+.notice-meta { font-size: 12px; color: var(--graphite); margin-top: 6px; }
+.notice-summary {
+  font-size: 13px; color: var(--ink); margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--primary-soft);
+  border-radius: var(--r-md);
+  line-height: 1.45;
+}
+.notice-summary strong { color: var(--primary-deep); font-weight: 700; font-size: 11px; }
+.notice-deadline { font-size: 12px; color: var(--bloom-deep); margin-top: 8px; font-weight: 700; }
+
+.grad-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 4px; border-bottom: 1px solid var(--hairline);
+}
+.grad-row:last-of-type { border-bottom: none; }
+.grad-label { font-size: 14px; color: var(--ink); }
+.grad-value {
+  font-size: 14px; color: var(--graphite);
+  margin-left: auto; margin-right: 14px;
+  font-weight: 500;
+}
+.grad-status { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.grad-status.ok { background: var(--storm-sea); }
+.grad-status.warning { background: var(--bloom-coral); }
+.grad-status.error { background: var(--bloom-deep); }
+.grad-warning {
+  margin-top: 16px; padding: 12px 14px;
+  background: var(--cloud);
+  border-left: 3px solid var(--bloom-coral);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  font-size: 13px; color: var(--ink); font-weight: 500;
+}
+
+.cert-grid {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 10px 18px; align-items: center;
+  font-size: 13px; padding: 6px 0;
+}
+.cert-grid .lbl { color: var(--graphite); }
+.cert-grid > span:not(.lbl) { font-weight: 500; color: var(--ink); }
+.cert-cost { margin-top: 14px; font-size: 16px; color: var(--ink); font-weight: 500; }
+.cert-actions { display: flex; gap: 10px; margin-top: 16px; }
+.cert-actions button {
+  padding: 10px 20px; border-radius: var(--r-md);
+  font-size: 13px; font-weight: 600;
+  border: none; cursor: pointer;
+  font-family: var(--font);
+}
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-deep); }
+.btn-secondary {
+  background: var(--canvas); color: var(--ink);
+  border: 1px solid var(--ink);
+}
+
+.loan-item {
+  padding: 12px 14px;
+  border-left: 3px solid var(--steel);
+  background: var(--cloud);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin-bottom: 8px;
+}
+.loan-item.due_soon { border-left-color: var(--bloom-coral); }
+.loan-item.renewed { border-left-color: var(--storm-sea); }
+.loan-item.overdue { border-left-color: var(--bloom-deep); }
+.loan-row { display: flex; justify-content: space-between; gap: 8px; }
+.loan-title { font-size: 14px; font-weight: 500; color: var(--ink); }
+.loan-status { font-size: 12px; color: var(--graphite); margin-top: 4px; }
+.loan-note { font-size: 12px; color: var(--primary); margin-top: 6px; font-weight: 500; }
+
+.book-item {
+  padding: 14px 16px;
+  background: var(--cloud);
+  border-radius: var(--r-lg);
+  margin-bottom: 10px;
+}
+.book-title { font-weight: 500; font-size: 14px; color: var(--ink); }
+.book-authors { font-size: 12px; color: var(--graphite); margin-top: 3px; }
+.book-status {
+  font-size: 12px; margin-top: 8px;
+  display: flex; align-items: center; gap: 5px;
+  font-weight: 500;
+}
+.book-status.available { color: var(--primary); }
+.book-status.borrowed { color: var(--bloom-deep); }
+
+.approval-item {
+  padding: 14px 16px;
+  background: var(--cloud);
+  border-radius: var(--r-lg);
+  margin-bottom: 10px;
+}
+.approval-header {
+  display: flex; justify-content: space-between;
+  font-size: 14px; font-weight: 500;
+  gap: 8px;
+  color: var(--ink);
+}
+.approval-meta { font-size: 12px; color: var(--graphite); margin-top: 6px; }
+.approval-summary {
+  font-size: 13px; color: var(--ink);
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--primary-soft);
+  border-radius: var(--r-md);
+  line-height: 1.45;
+}
+
+.task-complete {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-radius: var(--r-xl);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-soft-lift);
+}
+.task-complete .tc-title {
+  font-size: 18px; font-weight: 500;
+  color: var(--on-ink);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.task-complete .tc-title::before {
+  content: '';
+  display: inline-block;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--primary-bright);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-size: 12px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.task-complete .tc-details {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 8px 18px; font-size: 13px;
+  color: var(--on-ink);
+}
+.task-complete .tc-lbl {
+  color: var(--steel);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.text-card {
+  padding: 16px 18px;
+  background: var(--cloud);
+  border-radius: var(--r-xl);
+  font-size: 14px; line-height: 1.55;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+.input-area {
+  padding: 16px 20px;
+  border-top: 1px solid var(--hairline);
+  display: flex; gap: 10px;
+  background: var(--canvas);
+  flex-shrink: 0;
+}
+.input-area input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--steel);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+  font-family: var(--font);
+  font-size: 14px;
+  outline: none;
+  height: 44px;
+  color: var(--ink);
+}
+.input-area input:focus { border-color: var(--ink); }
+.input-area input::placeholder { color: var(--graphite); }
+.send-btn {
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  background: var(--kyeongs-color);
+  color: var(--on-primary);
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font);
+}
+.send-btn:hover:not(:disabled) { background: var(--primary-bright); }
+.send-btn:disabled { background: var(--steel); cursor: not-allowed; }
+
+.screen {
+  flex: 1; display: flex;
+  align-items: center; justify-content: center;
+  background: var(--cloud);
+  overflow: hidden;
+}
+.screen img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.placeholder {
+  color: var(--graphite); font-size: 14px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+}
+.placeholder svg {
+  width: 56px; height: 56px;
+  stroke: var(--steel);
+  fill: none;
+}
+.screen-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--hairline);
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--graphite);
+  background: var(--canvas);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.screen-footer .status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--steel);
+}
+.screen-footer .status-dot.live { background: var(--primary); animation: pulse 1.5s infinite; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--steel); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--graphite); }
+</style>
+</head>
+<body>
+
+<!-- ────── 로그인 화면 ────── -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <!-- 로그인 폼 -->
+    <div id="loginForm">
+      <div class="login-title">CNU AI Agent</div>
+      <div class="login-sub">충남대학교 학사 자동화 에이전트</div>
+
+      <div class="login-error" id="loginError"></div>
+
+      <div class="field">
+        <label>학번</label>
+        <input id="loginId" type="text" placeholder="학번" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>비밀번호</label>
+        <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password">
+      </div>
+
+      <button class="login-btn" onclick="doLogin()">로그인</button>
+      <a class="login-link" onclick="showRegister()">계정이 없으신가요? 회원가입</a>
+    </div>
+
+    <!-- 회원가입 폼 -->
+    <div id="registerForm" style="display:none">
+      <div class="login-title">회원가입</div>
+      <div class="login-sub">CNU AI Agent를 시작하세요</div>
+
+      <div class="login-error" id="regError"></div>
+
+      <div class="field">
+        <label>학번</label>
+        <input id="regId" type="text" placeholder="학번을 입력하세요.">
+      </div>
+      <div class="field">
+        <label>이름</label>
+        <input id="regName" type="text" placeholder="이름을 입력하세요.">
+      </div>
+      <div class="field">
+        <label>서비스 비밀번호</label>
+        <input id="regPw" type="password" placeholder="이 서비스에서 사용할 비밀번호">
+        <div class="field-help">CNU AI Agent 로그인용입니다</div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="divider-label">학내 시스템 연동</div>
+
+      <div class="field">
+        <label>사이버캠퍼스 비밀번호</label>
+        <input id="regCnuPw" type="password" placeholder="사이버캠퍼스 로그인 비밀번호">
+        <div class="field-help">암호화되어 안전하게 저장됩니다</div>
+      </div>
+
+      <button class="login-btn" onclick="doRegister()">가입하기</button>
+      <a class="login-link" onclick="showLogin()">이미 계정이 있으신가요? 로그인</a>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 메인 UI ────── -->
+<div class="topbar">
+  <div class="logo">
+    <img src="/static/logo.svg" alt="충남대학교 로고">
+  </div>
+  <div class="brand">
+    <span class="univ">충남대학교</span>
+    <span class="app">CNU AI Agent</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="user" id="userInfo">로딩 중...</div>
+  <div class="logout" onclick="doLogout()">로그아웃</div>
+</div>
+
+<div class="subheader">Dashboard</div>
+
+<div class="main">
+  <div class="panel left-panel">
+    <div class="panel-header">
+      <div class="dot"></div>
+      AI Agent 채팅
+    </div>
+
+    <div class="chat" id="chat">
+      <div class="welcome" id="welcome">
+        <div class="welcome-title">어떤 작업을<br>도와드릴까요?</div>
+        <div class="welcome-sub">충남대학교 6개 시스템을 한 번에 자동화합니다.</div>
+
+        <div class="system-grid">
+          <div class="system-card">
+            <div class="sys-eyebrow">LMS</div>
+            <div class="sys-name">📚 사이버캠퍼스</div>
+            <div class="sys-examples">
+              <div class="ex-chip" onclick="quickSend('이번 주 마감 과제 알려줘')">이번 주 마감 과제</div>
+              <div class="ex-chip" onclick="quickSend('딥러닝 과목 공지사항 확인해줘')">공지사항 확인</div>
+            </div>
+          </div>
+
+          <div class="system-card">
+            <div class="sys-eyebrow">Academic</div>
+            <div class="sys-name">🎓 통합정보시스템</div>
+            <div class="sys-examples">
+              <div class="ex-chip" onclick="quickSend('졸업요건 확인해줘')">졸업요건 확인</div>
+              <div class="ex-chip" onclick="quickSend('이번 학기 성적 알려줘')">성적 조회</div>
+            </div>
+          </div>
+
+          <div class="system-card">
+            <div class="sys-eyebrow">Library</div>
+            <div class="sys-name">📖 도서관</div>
+            <div class="sys-examples">
+              <div class="ex-chip" onclick="quickSend('내 도서 대출 현황 알려줘')">대출 현황</div>
+              <div class="ex-chip" onclick="quickSend('딥러닝 책 검색해줘')">도서 검색</div>
+            </div>
+          </div>
+
+          <div class="system-card">
+            <div class="sys-eyebrow">KORUS</div>
+            <div class="sys-name">✍ 전자결재</div>
+            <div class="sys-examples">
+              <div class="ex-chip" onclick="quickSend('결재 대기 문서 확인해줘')">결재 대기 확인</div>
+              <div class="ex-chip" onclick="quickSend('출장신청서 결재해줘')">출장신청서 결재</div>
+            </div>
+          </div>
+
+          <div class="system-card">
+            <div class="sys-eyebrow">Notices</div>
+            <div class="sys-name">🏛 학과 홈페이지</div>
+            <div class="sys-examples">
+              <div class="ex-chip" onclick="quickSend('컴퓨터공학과 새 공지 알려줘')">새 공지 스캔</div>
+              <div class="ex-chip" onclick="quickSend('장학 키워드 관련 공지 찾아줘')">키워드 검색</div>
+            </div>
+          </div>
+
+          <div class="system-card">
+            <div class="sys-eyebrow">Career</div>
+            <div class="sys-name">🎯 CNU With U+</div>
+            <div class="sys-examples">
+              <div class="ex-chip" onclick="quickSend('내 전공에 맞는 비교과 추천해줘')">비교과 추천</div>
+              <div class="ex-chip" onclick="quickSend('진로 로드맵 보여줘')">진로 로드맵</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input id="input" placeholder="메시지를 입력하세요..." />
+      <button class="send-btn" id="sendBtn" onclick="sendTask()">→</button>
+    </div>
+  </div>
+
+  <div class="panel right-panel">
+    <div class="panel-header">
+      🌐 Browser Use Agent
+      <div style="flex:1"></div>
+      <div class="dot off" id="liveDot"></div>
+    </div>
+    <div class="screen">
+      <img id="screen" style="display:none" />
+      <div class="placeholder" id="placeholder">
+        <svg viewBox="0 0 24 24" stroke-width="1.5">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        에이전트 실행을 기다리는 중
+      </div>
+    </div>
+    <div class="screen-footer">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">대기중</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// 세션 / 인증
+// ─────────────────────────────────────────
+let session = null;
+
+function showLogin() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+  document.getElementById('regError').style.display = 'none';
+}
+
+function showError(elemId, msg) {
+  const el = document.getElementById(elemId);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function doLogin() {
+  const user_id = document.getElementById('loginId').value.trim();
+  const password = document.getElementById('loginPw').value;
+  if (!user_id || !password) {
+    showError('loginError', '학번과 비밀번호를 모두 입력하세요.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id, password }),
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      session = data;
+      localStorage.setItem('session_id', data.session_id);
+      localStorage.setItem('user_id', data.user.user_id);
+      localStorage.setItem('user_name', data.user.name);
+      enterApp();
+    } else {
+      showError('loginError', data.error || '로그인 실패');
+    }
+  } catch (e) {
+    showError('loginError', '서버 연결 실패: ' + e.message);
+  }
+}
+
+async function doRegister() {
+  const user_id = document.getElementById('regId').value.trim();
+  const name = document.getElementById('regName').value.trim();
+  const password = document.getElementById('regPw').value;
+  const cnu_pw = document.getElementById('regCnuPw').value;
+
+  if (!user_id || !name || !password || !cnu_pw) {
+    showError('regError', '모든 항목을 입력하세요.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id, name, password, cnu_pw }),
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      alert('가입 완료! 로그인해주세요.');
+      showLogin();
+      document.getElementById('loginId').value = user_id;
+    } else {
+      showError('regError', data.error || '가입 실패');
+    }
+  } catch (e) {
+    showError('regError', '서버 연결 실패: ' + e.message);
+  }
+}
+
+async function doLogout() {
+  const session_id = localStorage.getItem('session_id');
+  if (session_id) {
+    try {
+      await fetch('/api/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id }),
+      });
+    } catch {}
+  }
+  localStorage.removeItem('session_id');
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('user_name');
+  location.reload();
+}
+
+function enterApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('userInfo').textContent =
+    `${localStorage.getItem('user_name')} (${localStorage.getItem('user_id')})`;
+  connectChat();
+  connectScreen();
+}
+
+// 페이지 로드 시 기존 세션 확인
+window.addEventListener('DOMContentLoaded', () => {
+  const session_id = localStorage.getItem('session_id');
+  if (session_id) {
+    session = {
+      session_id,
+      user: {
+        user_id: localStorage.getItem('user_id'),
+        name: localStorage.getItem('user_name'),
+      },
+    };
+    enterApp();
+  }
+});
+
+// ─────────────────────────────────────────
+// 기존 채팅 / 화면 로직
+// ─────────────────────────────────────────
+const chat = document.getElementById('chat');
+const screen = document.getElementById('screen');
+const placeholder = document.getElementById('placeholder');
+const liveDot = document.getElementById('liveDot');
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const sendBtn = document.getElementById('sendBtn');
+const input = document.getElementById('input');
+
+let ws, screenWs;
+let typingEl = null;
+
+function scrollBottom() { chat.scrollTop = chat.scrollHeight; }
+
+function addUserMsg(text) {
+  const div = document.createElement('div');
+  div.className = 'user-msg';
+  div.textContent = text;
+  chat.appendChild(div);
+  scrollBottom();
+}
+
+function addStatus(text, cls = '') {
+  const div = document.createElement('div');
+  div.className = `status-msg ${cls}`;
+  div.textContent = text;
+  chat.appendChild(div);
+  scrollBottom();
+}
+
+function showTyping() {
+  removeTyping();
+  typingEl = document.createElement('div');
+  typingEl.className = 'typing';
+  typingEl.innerHTML = '<span></span><span></span><span></span>';
+  chat.appendChild(typingEl);
+  scrollBottom();
+}
+
+function removeTyping() {
+  if (typingEl) { typingEl.remove(); typingEl = null; }
+}
+
+function setScreenStatus(cls, text) {
+  statusDot.className = `status-dot ${cls === 'live' ? 'live' : ''}`;
+  statusText.textContent = text;
+  if (cls === 'off') {
+    liveDot.className = 'dot off';
+  }
+}
+
+function addTextCard(text) {
+  const div = document.createElement('div');
+  div.className = 'text-card';
+  div.textContent = text || '결과 없음';
+  chat.appendChild(div);
+  scrollBottom();
+}
+
+function addCard(card) {
+  if (!card || !card.type) { addTextCard(JSON.stringify(card)); return; }
+  const renderer = cardRenderers[card.type] || cardRenderers.text;
+  chat.appendChild(renderer(card));
+  scrollBottom();
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+}
+
+const cardRenderers = {
+  text: (c) => {
+    const d = document.createElement('div');
+    d.className = 'text-card';
+    d.textContent = c.text || '';
+    return d;
+  },
+  assignment_list: (c) => {
+    const d = document.createElement('div'); d.className = 'card';
+    let h = `<div class="card-title">📚 ${esc(c.title || '과제 목록')}</div>`;
+    for (const it of (c.items || [])) {
+      const u = it.urgency || 'green';
+      const mClass = u === 'red' ? 'urgent' : '';
+      const btn = u === 'red'
+        ? `<button class="submit-btn" onclick="quickSend('${esc(it.subject)} ${esc(it.title)} 제출해줘')">제출</button>`
+        : '';
+      h += `<div class="assignment-item urgency-${u}">
+        <div class="info">
+          <div class="title">${esc(it.subject || '')} · ${esc(it.title || '')}</div>
+          <div class="meta ${mClass}">${esc(it.deadline || '')}</div>
+        </div>
+        ${btn}
+      </div>`;
+    }
+    if (c.footer) h += `<div class="card-footer">${esc(c.footer)}</div>`;
+    d.innerHTML = h;
+    return d;
+  },
+  notice_list: (c) => {
+    const d = document.createElement('div'); d.className = 'card';
+    let h = `<div class="card-title">📋 ${esc(c.title || '공지사항')}</div>`;
+    for (const it of (c.items || [])) {
+      const meta = [it.date, it.category].filter(Boolean).join(' · ');
+      h += `<div class="notice-item">
+        <div class="notice-header">
+          <div class="notice-title">${esc(it.title || '')}</div>
+          ${it.badge ? `<span class="notice-badge">${esc(it.badge)}</span>` : ''}
+        </div>
+        ${meta ? `<div class="notice-meta">${esc(meta)}</div>` : ''}
+        ${it.summary ? `<div class="notice-summary"><strong>AI 요약</strong><br>${esc(it.summary)}</div>` : ''}
+        ${it.deadline ? `<div class="notice-deadline">마감 ${esc(it.deadline)}</div>` : ''}
+      </div>`;
+    }
+    d.innerHTML = h;
+    return d;
+  },
+  graduation_requirements: (c) => {
+    const d = document.createElement('div'); d.className = 'card';
+    let h = `<div class="card-title">🎓 ${esc(c.title || '졸업 요건 현황')}</div>`;
+    for (const it of (c.items || [])) {
+      h += `<div class="grad-row">
+        <span class="grad-label">${esc(it.category)}</span>
+        <span class="grad-value">${it.current} / ${it.required}</span>
+        <div class="grad-status ${it.status || 'ok'}"></div>
+      </div>`;
+    }
+    if (c.warning) h += `<div class="grad-warning">${esc(c.warning)}</div>`;
+    d.innerHTML = h;
+    return d;
+  },
+  certificate_issuance: (c) => {
+    const d = document.createElement('div'); d.className = 'card';
+    const it = c.item || {};
+    d.innerHTML = `
+      <div class="card-title">📄 ${esc(c.title || '증명서 발급')}</div>
+      <div class="cert-grid">
+        <span class="lbl">종류</span><span>${esc(it.type || '')}</span>
+        <span class="lbl">부수</span><span>${esc(it.copies || '')}</span>
+        <span class="lbl">방식</span><span>${esc(it.format || '')}</span>
+      </div>
+      ${it.cost ? `<div class="cert-cost">${esc(it.cost)}</div>` : ''}
+      <div class="cert-actions">
+        <button class="btn-primary" onclick="quickSend('증명서 발급 진행해줘')">발급 진행</button>
+        <button class="btn-secondary">수정</button>
+      </div>`;
+    return d;
+  },
+  library_loans: (c) => {
+    const d = document.createElement('div'); d.className = 'card';
+    let h = `<div class="card-title">📚 ${esc(c.title || '대출 현황')}</div>`;
+    for (const it of (c.items || [])) {
+      h += `<div class="loan-item ${it.status || ''}">
+        <div class="loan-row">
+          <div>
+            <div class="loan-title">${esc(it.title || '')}</div>
+            <div class="loan-status">${esc(it.due_date || '')}</div>
+          </div>
+        </div>
+        ${it.note ? `<div class="loan-note">${esc(it.note)}</div>` : ''}
+      </div>`;
+    }
+    d.innerHTML = h;
+    return d;
+  },
+  library_search: (c) => {
+    const d = document.createElement('div'); d.className = 'card';
+    let h = `<div class="card-title">🔍 ${esc(c.title || '검색 결과')}</div>`;
+    for (const it of (c.items || [])) {
+      const sc = (it.status || '').includes('가능') ? 'available' : 'borrowed';
+      h += `<div class="book-item">
+        <div class="book-title">${esc(it.title || '')}</div>
+        ${it.authors ? `<div class="book-authors">${esc(it.authors)}</div>` : ''}
+        <div class="book-status ${sc}">● ${esc(it.status || '')}${it.location ? ' · ' + esc(it.location) : ''}</div>
+      </div>`;
+    }
+    d.innerHTML = h;
+    return d;
+  },
+  approval_documents: (c) => {
+    const d = document.createElement('div'); d.className = 'card';
+    let h = `<div class="card-title">📝 ${esc(c.title || '결재 대기 문서')}</div>`;
+    for (const it of (c.items || [])) {
+      h += `<div class="approval-item">
+        <div class="approval-header">
+          <span>${it.number ? it.number + '. ' : ''}${esc(it.doc_title || '')}</span>
+          <span style="font-size:12px;color:var(--graphite);font-weight:400">${esc(it.date || '')}</span>
+        </div>
+        ${it.requester ? `<div class="approval-meta">기안 · ${esc(it.requester)}</div>` : ''}
+        ${it.summary ? `<div class="approval-summary">${esc(it.summary)}</div>` : ''}
+      </div>`;
+    }
+    d.innerHTML = h;
+    return d;
+  },
+  task_complete: (c) => {
+    const d = document.createElement('div'); d.className = 'task-complete';
+    let h = `<div class="tc-title">${esc(c.title || '완료')}</div><div class="tc-details">`;
+    for (const x of (c.details || [])) {
+      h += `<span class="tc-lbl">${esc(x.label)}</span><span>${esc(x.value)}</span>`;
+    }
+    h += '</div>';
+    d.innerHTML = h;
+    return d;
+  },
+};
+
+function hideWelcome() {
+  const w = document.getElementById('welcome');
+  if (w) w.remove();
+}
+
+function sendTask() {
+  const task = input.value.trim();
+  if (!task) return;
+  if (!ws || ws.readyState !== 1) {
+    addStatus(`WS 미연결 (state=${ws ? ws.readyState : '없음'})`, 'error');
+    return;
+  }
+  hideWelcome();
+  addUserMsg(task);
+  ws.send(JSON.stringify({ type: 'task', task }));
+  input.value = '';
+  sendBtn.disabled = true;
+  showTyping();
+}
+
+function quickSend(task) {
+  input.value = task;
+  sendTask();
+}
+
+input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendTask(); });
+
+// ─────────────────────────────────────────
+// WebSocket 연결 — 세션 인증 포함
+// ─────────────────────────────────────────
+function connectChat() {
+  const host = location.host;
+  console.log(`[chat] connecting to ws://${host}/ws/chat`);
+  ws = new WebSocket(`ws://${host}/ws/chat`);
+
+  ws.onopen = () => {
+    console.log('[chat] connected, sending auth');
+    // 첫 메시지로 세션 인증
+    ws.send(JSON.stringify({
+      type: 'auth',
+      session_id: localStorage.getItem('session_id'),
+    }));
+    sendBtn.disabled = false;
+  };
+
+  ws.onerror = (e) => console.error('[chat] error', e);
+
+  ws.onclose = (e) => {
+    console.log('[chat] closed', e.code);
+    sendBtn.disabled = true;
+    if (e.code === 4001) {
+      // 세션 만료
+      alert('세션이 만료되었습니다. 다시 로그인하세요.');
+      doLogout();
+      return;
+    }
+    setTimeout(connectChat, 2000);
+  };
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    switch (msg.type) {
+      case 'status':
+        removeTyping();
+        addStatus(msg.text);
+        setScreenStatus('live', msg.text);
+        showTyping();
+        break;
+      case 'done':
+        removeTyping();
+        if (msg.card) addCard(msg.card);
+        else addTextCard(msg.text);
+        setScreenStatus('done', `완료 · ${msg.steps} steps`);
+        sendBtn.disabled = false;
+        setTimeout(() => setScreenStatus('off', '대기중'), 5000);
+        break;
+      case 'error':
+        removeTyping();
+        addStatus(msg.text, 'error');
+        setScreenStatus('error', '에러');
+        sendBtn.disabled = false;
+        setTimeout(() => setScreenStatus('off', '대기중'), 5000);
+        break;
+    }
+  };
+}
+
+function connectScreen() {
+  const host = location.host;
+  console.log(`[screen] connecting to ws://${host}/ws/screen`);
+  screenWs = new WebSocket(`ws://${host}/ws/screen`);
+
+  screenWs.onopen = () => console.log('[screen] connected');
+  screenWs.onerror = (e) => console.error('[screen] error', e);
+  screenWs.onclose = () => {
+    console.log('[screen] closed, retry in 2s');
+    setTimeout(connectScreen, 2000);
+  };
+  screenWs.onmessage = (e) => {
+    if (typeof e.data !== 'string' || e.data.length < 100) return;
+    const imgSrc = e.data.startsWith('data:image')
+      ? e.data
+      : 'data:image/png;base64,' + e.data;
+    screen.src = imgSrc;
+    screen.style.display = 'block';
+    placeholder.style.display = 'none';
+    liveDot.className = 'dot live';
+  };
+}
+</script>
+</body>
+</html>
