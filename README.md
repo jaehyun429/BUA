@@ -1,5 +1,12 @@
 # BUA — Browser Use Agent
 
+## Demo
+
+> "우리 학부에 졸업 관련 최근 공지 있어?" — 자연어 명령 한 줄로 충남대 6개 캠퍼스 시스템 자동 탐색
+
+![Demo](./demo.gif)
+
+
 > **KCC 2026 제출 논문** | 충남대학교 Data Network 연구실
 > [![Paper](https://img.shields.io/badge/Paper-KCC%202026-blue?style=flat-square)](./paper/kcc2026.pdf)
 
