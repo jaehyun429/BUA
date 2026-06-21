@@ -36,7 +36,7 @@ Teacher 모델 (Gemini 2.5 Flash)
         │
         ▼
 QLoRA 파인튜닝 (Qwen2.5-32B, r=16, α=32)
-  └─ A6000(48GB) × 2 / Tensor Parallelism / ~3시간
+  └─ A6000(48GB) × 2 / B200 x 2 / Tensor Parallelism / ~3시간
 
 [ 실시간 에이전트 추론 단계 (Part B) ]
 
