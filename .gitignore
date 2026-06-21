@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 가상환경
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# 모델 가중치 (용량 큼)
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.gguf
+checkpoints/
+runs/
+outputs/
+
+# HuggingFace 캐시
+.cache/
+hub/
+
+# 환경변수 / API 키
+.env
+.env.*
+*.key
+config/secrets.yaml
+
+# 로그
+*.log
+logs/
+wandb/
+mlruns/
+
+# 데이터
+data/
+datasets/
+*.csv
+*.json
+*.jsonl
+*.parquet
+*.arrow
+
+# 결과물
+results/
+eval/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swpMiniconda3-latest-Linux-x86_64.sh
+*.sh
+browser-use/
+browser-use/
